@@ -1,0 +1,47 @@
+{
+  "historia": [
+    {
+      "pregunta": "¿En qué país se originó el tenis de mesa a finales del siglo XIX?",
+      "opciones": ["China", "Inglaterra", "Japón", "Estados Unidos"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
+      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "correcta": 0
+    }
+  ],
+  "reglamentacion": [
+    {
+      "pregunta": "¿A cuántos puntos se gana un juego (game) en tenis de mesa?",
+      "opciones": ["10", "11", "15", "21"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
+      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "correcta": 0
+    }
+  ],
+  "indumentaria": [
+    {
+      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
+      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "correcta": 0
+    }
+  ],
+  "tecnica": [
+    {
+      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
+      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "correcta": 0
+    }
+  ],
+  "arbitraje": [
+    {
+      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
+      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "correcta": 0
+    }
+  ]
+}
