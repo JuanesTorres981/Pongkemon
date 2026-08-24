@@ -52,7 +52,10 @@ class BattleState(State):
         self.fuente_marcador = pygame.font.SysFont("consolas", 24, bold=True)
 
         self.fase = None
+        # pelota del "saque": siempre va del rival (arriba) hacia el jugador (abajo/centro)
         self.pelota = Ball(x_inicio=120, x_final=ANCHO - 120, y=ALTO // 2 - 40)
+        # pelota del "resultado": se crea recién al responder, dirección según acierto/fallo
+        self.pelota_resultado = None
         self.mensaje_feedback = ""
         self.color_feedback = BLANCO
         self.tiempo_feedback = 0.0
@@ -93,11 +96,21 @@ class BattleState(State):
             self.match.punto_para_jugador()
             self.mensaje_feedback = "¡Correcto! Punto para ti."
             self.color_feedback = VERDE_OK
+            # acertaste -> la pelota "regresa" hacia el rival (mismo eje que el saque, invertido)
+            self.pelota_resultado = Ball(
+                x_inicio=self.pelota.x_final, x_final=self.pelota.x_inicio,
+                y=self.pelota.y, cae_a_mitad=False,
+            )
         else:
             self.match.punto_para_rival()
             texto_correcta = self.pregunta_actual["opciones"][correcta]
             self.mensaje_feedback = f"Incorrecto. Era: {texto_correcta}"
             self.color_feedback = ROJO
+            # fallaste -> la pelota se va a la red, no cruza al otro lado
+            self.pelota_resultado = Ball(
+                x_inicio=self.pelota.x_final, x_final=self.pelota.x_inicio,
+                y=self.pelota.y, cae_a_mitad=True,
+            )
 
         self.tiempo_feedback = 1.6
         self.fase = self.FASE_FEEDBACK
@@ -116,6 +129,8 @@ class BattleState(State):
                 self.fase = self.FASE_ESPERANDO_RESPUESTA
 
         elif self.fase == self.FASE_FEEDBACK:
+            if self.pelota_resultado is not None:
+                self.pelota_resultado.actualizar(dt)
             self.tiempo_feedback -= dt
             if self.tiempo_feedback <= 0:
                 if self.match.duelo_terminado():
@@ -124,13 +139,11 @@ class BattleState(State):
                     self._nueva_pregunta()
 
     def dibujar(self, pantalla):
-        pantalla.fill((20, 60, 30))  # cancha de fondo (placeholder de color)
+        pantalla.fill((20, 60, 30))  
 
-        # mesa de ping pong al centro (placeholder si no hay sprite)
         mesa = assets.get_image("tiles/tile_mesa.png", size=(ANCHO - 200, 120))
         pantalla.blit(mesa, (100, ALTO // 2 - 60))
 
-        # sprite del rival arriba, jugador (silueta simple) abajo -- estético
         sprite_rival = assets.get_image(f"rivals/rival_{self.rival.tema}.png", size=(64, 64))
         pantalla.blit(sprite_rival, (ANCHO // 2 - 32, 40))
 
@@ -150,6 +163,8 @@ class BattleState(State):
             self._dibujar_pregunta(pantalla)
 
         if self.fase == self.FASE_FEEDBACK:
+            if self.pelota_resultado is not None:
+                self.pelota_resultado.dibujar(pantalla)
             texto = self.fuente_opciones.render(self.mensaje_feedback, True, self.color_feedback)
             pantalla.blit(texto, (ANCHO // 2 - texto.get_width() // 2, 300))
 
