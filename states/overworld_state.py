@@ -17,6 +17,7 @@ from config import (TILE_SIZE, VERDE_PASTO, BLANCO, NEGRO, ANCHO, ALTO, MAP_PATH
                     MAPA_FONDO, TEMAS, TEMAS_NOMBRE_VISIBLE)
 from core.state import State
 from core.asset_manager import assets
+from core.audio import audio
 from entities.player import Player
 from entities.npc_rival import NpcRival
 
@@ -69,6 +70,12 @@ class OverworldState(State):
         self.jugador = self._crear_jugador_desde_mapa()
         self.mensaje = ""  # se muestra abajo, ej "Ya venciste al rival de Historia."
         self.fuente_mensaje = pygame.font.SysFont("consolas", 18)
+        self.tiempo = 0.0               # para la animación de "respirar" de los rivales
+        self.cooldown_choque = 0.0      # para que el sonido de chocar no se repita a lo loco
+        self.esperar_soltar = False     # al volver de un duelo, hay que soltar la flecha primero
+
+    def al_entrar(self):
+        audio.musica("musica_mapa")
 
     def _crear_jugador_desde_mapa(self):
         for fila in range(self.mapa.filas):
@@ -88,34 +95,42 @@ class OverworldState(State):
                     rivales.append(NpcRival(col, fila, tema, id_unico=f"rival_{tema}"))
         return rivales
 
+    TECLAS_DIRECCION = {
+        pygame.K_UP: (0, -1), pygame.K_w: (0, -1),
+        pygame.K_DOWN: (0, 1), pygame.K_s: (0, 1),
+        pygame.K_LEFT: (-1, 0), pygame.K_a: (-1, 0),
+        pygame.K_RIGHT: (1, 0), pygame.K_d: (1, 0),
+    }
+
     def manejar_evento(self, evento):
-        if evento.type != pygame.KEYDOWN:
-            return
+        # un toque de tecla: da un paso (mantenerla presionada se maneja en actualizar)
+        if evento.type == pygame.KEYDOWN and evento.key in self.TECLAS_DIRECCION:
+            self.esperar_soltar = False
+            if not self.jugador.moviendo:
+                self._intentar_mover(*self.TECLAS_DIRECCION[evento.key])
 
-        dx, dy = 0, 0
-        if evento.key in (pygame.K_UP, pygame.K_w):
-            dy = -1
-        elif evento.key in (pygame.K_DOWN, pygame.K_s):
-            dy = 1
-        elif evento.key in (pygame.K_LEFT, pygame.K_a):
-            dx = -1
-        elif evento.key in (pygame.K_RIGHT, pygame.K_d):
-            dx = 1
+    def _direccion_presionada(self):
+        teclas = pygame.key.get_pressed()
+        for tecla, direccion in self.TECLAS_DIRECCION.items():
+            if teclas[tecla]:
+                return direccion
+        return None
 
-        if dx or dy:
-            rival = self._rival_en(self.jugador.col + dx, self.jugador.fila + dy)
-            if rival is not None:
-                self.jugador.direccion = {(-1, 0): "left", (1, 0): "right",
-                                           (0, -1): "up", (0, 1): "down"}[(dx, dy)]
-                if self._esta_vencido(rival):
-                    # ya le ganaste: no se repite el duelo, solo se avisa
-                    self.mensaje = f"Ya venciste al rival de {TEMAS_NOMBRE_VISIBLE[rival.tema]}."
-                else:
-                    self.mensaje = ""
-                    self._iniciar_batalla(rival)
+    def _intentar_mover(self, dx, dy):
+        rival = self._rival_en(self.jugador.col + dx, self.jugador.fila + dy)
+        if rival is not None:
+            self.jugador.mirar(dx, dy)
+            if self._esta_vencido(rival):
+                # ya le ganaste: no se repite el duelo, solo se avisa
+                self.mensaje = f"Ya venciste al rival de {TEMAS_NOMBRE_VISIBLE[rival.tema]}."
             else:
                 self.mensaje = ""
-                self.jugador.mover(dx, dy, self.mapa)
+                self._iniciar_batalla(rival)
+        elif self.jugador.mover(dx, dy, self.mapa):
+            self.mensaje = ""
+        elif self.cooldown_choque <= 0:  # pared: "tuc" como en Pokémon
+            audio.efecto("choque")
+            self.cooldown_choque = 0.3
 
     def _esta_vencido(self, rival):
         return rival.id in self.game.datos_globales["rivales_vencidos"]
@@ -129,15 +144,25 @@ class OverworldState(State):
     def _iniciar_batalla(self, rival):
         # import local para evitar import circular entre estados
         from states.battle_state import BattleState
+        self.esperar_soltar = True
         self.game.cambiar_estado(BattleState(self.game, rival, self))
 
     def actualizar(self, dt):
-        pass
+        self.tiempo += dt
+        self.cooldown_choque -= dt
+        self.jugador.actualizar(dt)
+
+        # caminar manteniendo la tecla presionada
+        direccion = self._direccion_presionada()
+        if direccion is None:
+            self.esperar_soltar = False
+        elif not self.esperar_soltar and not self.jugador.moviendo:
+            self._intentar_mover(*direccion)
 
     def dibujar(self, pantalla):
         self.mapa.dibujar(pantalla)
         for rival in self.rivales:
-            rival.dibujar(pantalla, vencido=self._esta_vencido(rival))
+            rival.dibujar(pantalla, vencido=self._esta_vencido(rival), tiempo=self.tiempo)
         self.jugador.dibujar(pantalla)
 
         if self.mensaje:

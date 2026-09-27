@@ -6,6 +6,7 @@ reglamentacion, indumentaria, tecnica, arbitraje) que define de qué
 banco de preguntas saldrán sus preguntas al enfrentarlo.
 """
 
+import math
 import pygame
 from config import TILE_SIZE, SPRITE_MAPA, VERDE_OK
 from core.asset_manager import assets
@@ -27,11 +28,14 @@ class NpcRival:
         self.rect = pygame.Rect(col * TILE_SIZE, fila * TILE_SIZE, TILE_SIZE, TILE_SIZE)
         self._sprite_apagado = None  # se genera una sola vez, la primera vez que se necesita
 
-    def dibujar(self, pantalla, vencido=False):
+    def dibujar(self, pantalla, vencido=False, tiempo=0.0):
         sprite = assets.get_image(f"rivals/rival_{self.tema}.png", size=(SPRITE_MAPA, SPRITE_MAPA))
         destino = sprite.get_rect(midbottom=self.rect.midbottom)  # pies sobre su casilla
         if not vencido:
-            pantalla.blit(sprite, destino)
+            # "respira": se estira y encoge un poquito (cada rival a su propio ritmo)
+            estirar = 1 + 0.05 * math.sin(tiempo * 3 + self.col + self.fila)
+            vivo = pygame.transform.smoothscale(sprite, (SPRITE_MAPA, int(SPRITE_MAPA * estirar)))
+            pantalla.blit(vivo, vivo.get_rect(midbottom=self.rect.midbottom))
             return
 
         # vencido: en gris oscuro + palomita verde, para que se note bien

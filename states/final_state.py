@@ -11,6 +11,7 @@ import pygame
 
 from config import ANCHO, ALTO, BLANCO, AMARILLO, VERDE_OK, GRIS_CLARO, TEMAS, TEMAS_NOMBRE_VISIBLE
 from core.state import State
+from core.audio import audio
 from core.texto import envolver_texto, dibujar_lineas
 
 
@@ -21,11 +22,17 @@ class FinalState(State):
         self.fuente_sub = pygame.font.SysFont("consolas", 20, bold=True)
         self.fuente_texto = pygame.font.SysFont("consolas", 18)
         self.tiempo = 0.0  # para el parpadeo del texto de ayuda
+        self.musica_puesta = False
+
+    def al_entrar(self):
+        audio.parar_musica()
+        audio.efecto("victoria")
 
     def manejar_evento(self, evento):
         if evento.type != pygame.KEYDOWN:
             return
         if evento.key == pygame.K_SPACE:
+            audio.efecto("seleccionar")
             from states.menu_state import MenuState
             self.game.reiniciar_partida()
             self.game.cambiar_estado(MenuState(self.game))
@@ -34,6 +41,9 @@ class FinalState(State):
 
     def actualizar(self, dt):
         self.tiempo += dt
+        if not self.musica_puesta and self.tiempo > 2.5:  # después del jingle de victoria
+            audio.musica("musica_mapa")
+            self.musica_puesta = True
 
     def dibujar(self, pantalla):
         pantalla.fill((15, 30, 60))

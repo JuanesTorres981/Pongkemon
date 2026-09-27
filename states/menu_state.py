@@ -7,6 +7,7 @@ Pantalla de inicio. Presionar ESPACIO para empezar a jugar.
 import pygame
 from config import ANCHO, ALTO, BLANCO, AMARILLO, TITULO
 from core.state import State
+from core.audio import audio
 
 
 class MenuState(State):
@@ -15,8 +16,12 @@ class MenuState(State):
         self.fuente_titulo = pygame.font.SysFont("consolas", 30, bold=True)
         self.fuente_ayuda = pygame.font.SysFont("consolas", 18)
 
+    def al_entrar(self):
+        audio.musica("musica_mapa")
+
     def manejar_evento(self, evento):
         if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
+            audio.efecto("seleccionar")
             from states.overworld_state import OverworldState
             self.game.cambiar_estado(OverworldState(self.game))
 
@@ -31,6 +36,6 @@ class MenuState(State):
         pantalla.blit(ayuda, (ANCHO // 2 - ayuda.get_width() // 2, ALTO // 2))
 
         controles = self.fuente_ayuda.render(
-            "Muévete: flechas / WASD   |   Responder en duelo: teclas 1-4", True, BLANCO
+            "Muévete: flechas / WASD  |  Responder: 1-4  |  M: sonido", True, BLANCO
         )
         pantalla.blit(controles, (ANCHO // 2 - controles.get_width() // 2, ALTO // 2 + 40))

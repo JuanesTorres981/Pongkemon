@@ -10,6 +10,11 @@ class State:
     def __init__(self, game):
         self.game = game  # referencia al objeto Game, para cambiar de estado o leer assets
 
+    def al_entrar(self):
+        """Se llama cada vez que esta pantalla pasa a ser la activa
+        (también al VOLVER a ella, ej: del duelo al mapa). Útil para la música."""
+        pass
+
     def manejar_evento(self, evento):
         """Se llama por cada evento de pygame (teclado, mouse, etc)."""
         pass

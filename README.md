@@ -17,6 +17,8 @@ Controles:
 - Chocar contra un rival en el mapa = empieza el duelo automáticamente
 - Responder en el duelo: teclas `1`, `2`, `3`, `4`
 - Terminar duelo: `ESPACIO` para volver al mapa
+- Silenciar / activar sonido: `M` (en cualquier pantalla)
+- Mantener presionada una flecha = seguir caminando
 
 ## Reglas del duelo (ya implementadas en `battle/match_manager.py`)
 
@@ -81,6 +83,22 @@ assets/sprites/ui/ball.png
   `TILE_SIZE` en `config.py`), 64x64 o más para el sprite del rival en
   la pantalla de batalla (se reescala solo).
 
+## Música y efectos de sonido
+
+Están en `assets/sonidos/` y se **generan con código** (estilo 8-bit, sin
+derechos de autor):
+
+```bash
+python tools/generar_sonidos.py
+```
+
+Si consiguen o componen su propia música, reemplacen el `.wav` con el
+mismo nombre (`musica_mapa.wav`, `musica_duelo.wav`, `victoria.wav`,
+`derrota.wav`, `golpe.wav`, `bote.wav`, `fallo.wav`, `acierto.wav`,
+`seleccionar.wav`, `choque.wav`). El volumen se ajusta en `config.py`
+(`VOLUMEN_MUSICA`, `VOLUMEN_EFECTOS`). Si falta un archivo o el PC no
+tiene audio, el juego sigue funcionando en silencio.
+
 ## Editar el mapa
 
 `data/map.csv` es el mapa. Es una grilla de texto separada por comas:
@@ -101,7 +119,7 @@ filas tengan el mismo número de columnas (si no, el juego truena al cargar).
       — recuerden que la profe pide bibliografía APA en el recurso escrito,
       aunque acá en el JSON no hace falta citarlo.
 - [ ] Reemplazar los placeholders por el pixel art real.
-- [ ] (Opcional) Sonido al acertar/fallar.
+- [x] Música y sonidos (acierto, fallo, golpes, botes).
 - [ ] (Opcional) Animación de "victoria" del jugador en vez de solo texto.
 
 ## Recordatorio importante para la entrega completa

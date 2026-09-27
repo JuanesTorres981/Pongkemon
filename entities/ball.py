@@ -17,11 +17,12 @@ TAMANO = 20  # pixeles
 
 
 class Tramo:
-    def __init__(self, desde, hasta, duracion, altura_arco):
+    def __init__(self, desde, hasta, duracion, altura_arco, sonido=None):
         self.desde = desde            # (x, y) en la mesa / piso
         self.hasta = hasta
         self.duracion = duracion      # segundos
         self.altura_arco = altura_arco  # qué tanto sube la pelota a mitad del tramo
+        self.sonido = sonido          # efecto a sonar al llegar (ej "bote"), o None
 
 
 class Ball:
@@ -45,17 +46,23 @@ class Ball:
             self.altura = 0.0
 
     def actualizar(self, dt):
+        """Avanza la pelota. Devuelve la lista de sonidos de los tramos que
+        terminaron en este frame (ej ["bote"]), para que el duelo los reproduzca."""
+        sonidos = []
         if self.terminado:
-            return
+            return sonidos
         self._t += dt
         # si se pasó del tramo actual, salta al siguiente (conservando el tiempo sobrante)
         while self._tramos and self._t >= self._tramos[0].duracion:
             self._t -= self._tramos[0].duracion
-            self.x, self.y = self._tramos.pop(0).hasta
+            tramo = self._tramos.pop(0)
+            self.x, self.y = tramo.hasta
             self.altura = 0.0
+            if tramo.sonido:
+                sonidos.append(tramo.sonido)
         if not self._tramos:
             self.terminado = True
-            return
+            return sonidos
 
         tramo = self._tramos[0]
         p = self._t / tramo.duracion  # progreso 0..1 en este tramo
@@ -63,6 +70,7 @@ class Ball:
         self.x = x0 + (x1 - x0) * p
         self.y = y0 + (y1 - y0) * p
         self.altura = tramo.altura_arco * 4 * p * (1 - p)  # parábola: 0 -> máx -> 0
+        return sonidos
 
     def dibujar(self, pantalla):
         if not self.visible:

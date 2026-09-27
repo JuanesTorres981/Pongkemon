@@ -13,6 +13,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 SPRITES_DIR = os.path.join(ASSETS_DIR, "sprites")
 FONTS_DIR = os.path.join(ASSETS_DIR, "fonts")
+SONIDOS_DIR = os.path.join(ASSETS_DIR, "sonidos")
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
 QUESTIONS_PATH = os.path.join(DATA_DIR, "questions.json")
@@ -28,6 +29,10 @@ ANCHO = 800
 ALTO = 600
 FPS = 60
 TITULO = "Ping Pong RPG - Del ping pong al tenis de mesa"
+
+# ---------- SONIDO (0.0 a 1.0) ----------
+VOLUMEN_MUSICA = 0.45
+VOLUMEN_EFECTOS = 0.7
 
 # ---------- COLORES (estilo retro / pixel) ----------
 NEGRO = (10, 10, 10)

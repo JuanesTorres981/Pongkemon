@@ -16,12 +16,14 @@ Fases del duelo (en orden):
     FIN_DUELO           -> alguien ganó el juego
 """
 
+import math
 import random
 import pygame
 
 from config import ANCHO, ALTO, BLANCO, VERDE_OK, ROJO, AMARILLO, TEMAS_NOMBRE_VISIBLE
 from core.state import State
 from core.asset_manager import assets
+from core.audio import audio
 from core.texto import envolver_texto, dibujar_lineas
 from entities.ball import Ball, Tramo
 from battle.match_manager import MatchManager
@@ -58,17 +60,17 @@ BOTE = 140                    # qué tan lejos de la red bota la pelota
 # ---------- jugadas (trayectorias de la pelota) ----------
 # el rival te la manda: bota en tu mitad de la mesa y llega a tu raqueta
 JUGADA_RIVAL = [
-    Tramo((X_RIVAL, CENTRO_Y), (MESA.centerx + BOTE, CENTRO_Y), 0.7, 70),
+    Tramo((X_RIVAL, CENTRO_Y), (MESA.centerx + BOTE, CENTRO_Y), 0.7, 70, sonido="bote"),
     Tramo((MESA.centerx + BOTE, CENTRO_Y), (X_JUGADOR, CENTRO_Y), 0.35, 35),
 ]
 # acertaste: se la devuelves, bota en la mitad del rival y le llega
 JUGADA_DEVOLUCION = [
-    Tramo((X_JUGADOR, CENTRO_Y), (MESA.centerx - BOTE, CENTRO_Y), 0.6, 80),
+    Tramo((X_JUGADOR, CENTRO_Y), (MESA.centerx - BOTE, CENTRO_Y), 0.6, 80, sonido="bote"),
     Tramo((MESA.centerx - BOTE, CENTRO_Y), (X_RIVAL, CENTRO_Y), 0.3, 35),
 ]
 # fallaste: no le pegas, la pelota sigue de largo, cae al piso, bota y se va
 JUGADA_FALLO = [
-    Tramo((X_JUGADOR, CENTRO_Y), (X_JUGADOR + 40, PISO_Y), 0.4, 20),
+    Tramo((X_JUGADOR, CENTRO_Y), (X_JUGADOR + 40, PISO_Y), 0.4, 20, sonido="bote"),
     Tramo((X_JUGADOR + 40, PISO_Y), (ANCHO + 40, PISO_Y), 0.45, 40),
 ]
 
@@ -89,6 +91,12 @@ MENSAJES_FALLO = [
 PAUSA_ACIERTO = 0.8
 PAUSA_FALLO = 2.2  # más larga para alcanzar a leer la respuesta correcta
 DURACION_PAF = 0.35  # el "¡PAF!" que sale cuando le pegas
+
+# animación de golpe de los personajes (se lanzan hacia la mesa y giran la raqueta)
+DURACION_GOLPE = 0.28
+AVANCE_GOLPE = 18         # pixeles que se acercan a la mesa
+GIRO_GOLPE = 22           # grados que se inclinan al pegarle
+RETRASO_GOLPE_FALLIDO = 0.3  # si fallas, Mew le pega al aire... tarde
 
 
 class BattleState(State):
@@ -118,8 +126,16 @@ class BattleState(State):
         self.mensaje_feedback = ""
         self.color_feedback = BLANCO
         self.tiempo_resultado = 0.0  # tiempo transcurrido dentro de FASE_RESULTADO
+        self.tiempo = 0.0            # para la animación de "respirar"
+        # tiempo desde que empezó el golpe de cada uno (None = no está golpeando;
+        # negativo = va a golpear dentro de un rato)
+        self.golpe_rival = None
+        self.golpe_jugador = None
 
         self._nueva_pregunta()
+
+    def al_entrar(self):
+        audio.musica("musica_duelo")
 
     # ---------- flujo del duelo ----------
 
@@ -131,6 +147,8 @@ class BattleState(State):
             self.preguntas_usadas.add(indice)
 
         self.pelota.lanzar(JUGADA_RIVAL)
+        self.golpe_rival = 0.0  # el rival le pega (saca)
+        audio.efecto("golpe")
         self.fase = self.FASE_LANZANDO
 
     def manejar_evento(self, evento):
@@ -149,6 +167,7 @@ class BattleState(State):
 
         elif self.fase == self.FASE_FIN_DUELO:
             if evento.key == pygame.K_SPACE:
+                audio.efecto("seleccionar")
                 self._terminar_batalla()
 
     def _responder(self, indice_elegido):
@@ -163,6 +182,9 @@ class BattleState(State):
             self.mensaje_feedback = random.choice(MENSAJES_ACIERTO)
             self.color_feedback = VERDE_OK
             self.pelota.lanzar(JUGADA_DEVOLUCION)
+            self.golpe_jugador = 0.0
+            audio.efecto("golpe")
+            audio.efecto("acierto")
         else:
             self.game.datos_globales["fallos"] += 1
             self.match.punto_para_rival()
@@ -170,6 +192,8 @@ class BattleState(State):
             self.mensaje_feedback = f"{random.choice(MENSAJES_FALLO)} La respuesta era: {texto_correcta}"
             self.color_feedback = ROJO
             self.pelota.lanzar(JUGADA_FALLO)
+            self.golpe_jugador = -RETRASO_GOLPE_FALLIDO  # le pega al aire cuando ya pasó
+            audio.efecto("fallo")
 
         self.tiempo_resultado = 0.0
         self.fase = self.FASE_RESULTADO
@@ -178,6 +202,8 @@ class BattleState(State):
         if self.match.duelo_terminado():
             self.pelota.visible = False
             self.fase = self.FASE_FIN_DUELO
+            audio.parar_musica()
+            audio.efecto("victoria" if self.match.gano_jugador() else "derrota")
         else:
             self._nueva_pregunta()
 
@@ -196,13 +222,17 @@ class BattleState(State):
     # ---------- loop ----------
 
     def actualizar(self, dt):
+        self.tiempo += dt
+        self.golpe_rival = self._avanzar_golpe(self.golpe_rival, dt)
+        self.golpe_jugador = self._avanzar_golpe(self.golpe_jugador, dt)
+
         if self.fase == self.FASE_LANZANDO:
-            self.pelota.actualizar(dt)
+            self._sonar(self.pelota.actualizar(dt))
             if self.pelota.terminado:
                 self.fase = self.FASE_ESPERANDO_RESPUESTA
 
         elif self.fase == self.FASE_RESULTADO:
-            self.pelota.actualizar(dt)
+            self._sonar(self.pelota.actualizar(dt))
             self.tiempo_resultado += dt
             if self.pelota.terminado:
                 self.pelota.visible = self.acerto  # la que se fue de la mesa ya no se ve
@@ -210,6 +240,35 @@ class BattleState(State):
                 duracion_jugada = sum(t.duracion for t in (JUGADA_DEVOLUCION if self.acerto else JUGADA_FALLO))
                 if self.tiempo_resultado >= duracion_jugada + pausa:
                     self._despues_del_resultado()
+
+    @staticmethod
+    def _avanzar_golpe(t, dt):
+        if t is None:
+            return None
+        t += dt
+        return None if t >= DURACION_GOLPE else t
+
+    @staticmethod
+    def _sonar(sonidos):
+        for nombre in sonidos:
+            audio.efecto(nombre)
+
+    def _dibujar_personaje(self, pantalla, sprite, x, t_golpe, hacia):
+        """Dibuja a un personaje parado en el piso. 'hacia' = +1 si la mesa
+        está a su derecha, -1 si está a su izquierda.
+        - Quieto: "respira" (sube y baja un poquito).
+        - Golpeando: se lanza hacia la mesa y se inclina, como un swing."""
+        y = PISO_Y - TAMANO_PERSONAJE
+        y += int(2 * math.sin(self.tiempo * 4 + hacia))  # respirar
+        if t_golpe is not None and t_golpe >= 0:
+            fuerza = math.sin(t_golpe / DURACION_GOLPE * math.pi)  # 0 -> 1 -> 0
+            x += int(hacia * AVANCE_GOLPE * fuerza)
+            centro_pies = (x + TAMANO_PERSONAJE // 2, PISO_Y)
+            # rotate: ángulo positivo = antihorario. Inclinarse hacia la derecha = negativo
+            sprite = pygame.transform.rotate(sprite, -hacia * GIRO_GOLPE * fuerza)
+            pantalla.blit(sprite, sprite.get_rect(midbottom=centro_pies))
+            return
+        pantalla.blit(sprite, (x, y))
 
     def dibujar(self, pantalla):
         pantalla.fill((20, 60, 30))  # cancha de fondo (placeholder de color)
@@ -223,10 +282,12 @@ class BattleState(State):
         # rival a la izquierda de la mesa, jugador a la derecha
         sprite_rival = assets.get_image(f"rivals/rival_{self.rival.tema}.png",
                                         size=(TAMANO_PERSONAJE, TAMANO_PERSONAJE))
-        pantalla.blit(sprite_rival, (MESA.left + 10 - TAMANO_PERSONAJE, PISO_Y - TAMANO_PERSONAJE))
+        self._dibujar_personaje(pantalla, sprite_rival, MESA.left + 10 - TAMANO_PERSONAJE,
+                                self.golpe_rival, hacia=+1)
         sprite_jugador = assets.get_image("player/player_walk_left_0.png",
                                           size=(TAMANO_PERSONAJE, TAMANO_PERSONAJE))
-        pantalla.blit(sprite_jugador, (MESA.right - 10, PISO_Y - TAMANO_PERSONAJE))
+        self._dibujar_personaje(pantalla, sprite_jugador, MESA.right - 10,
+                                self.golpe_jugador, hacia=-1)
 
         tema_visible = TEMAS_NOMBRE_VISIBLE[self.rival.tema]
         titulo = self.fuente_marcador.render(f"Duelo: {tema_visible}", True, AMARILLO)
