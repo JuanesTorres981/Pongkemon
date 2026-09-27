@@ -58,6 +58,15 @@ JUEGOS_POR_DUELO = 1  # "al mejor de 1" -> si luego quieren mejor de 3/5, solo c
 # ---------- TEMAS (deben coincidir con las claves de data/questions.json) ----------
 TEMAS = ["historia", "reglamentacion", "indumentaria", "tecnica", "arbitraje"]
 
+# color de la "cancha" de cada rival en el mapa
+TEMAS_COLOR = {
+    "historia": (196, 140, 72),
+    "reglamentacion": (72, 132, 220),
+    "indumentaria": (222, 92, 160),
+    "tecnica": (240, 136, 48),
+    "arbitraje": (226, 206, 56),
+}
+
 TEMAS_NOMBRE_VISIBLE = {
     "historia": "Historia del Tenis de Mesa",
     "reglamentacion": "Reglamentación",

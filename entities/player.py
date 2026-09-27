@@ -19,6 +19,7 @@ import math
 import pygame
 from config import TILE_SIZE, SPRITE_MAPA
 from core.asset_manager import assets
+from core.ui import dibujar_sombra
 
 DURACION_PASO = 0.16   # segundos que tarda en pasar de una casilla a otra
 ALTURA_SALTITO = 4     # pixeles que "sube" a mitad de cada paso
@@ -83,6 +84,8 @@ class Player:
         p = self._progreso
         x = self._desde[0] + (self.rect.x - self._desde[0]) * p
         y = self._desde[1] + (self.rect.y - self._desde[1]) * p
+        # la sombra se queda en el piso aunque Mew dé el saltito
+        dibujar_sombra(pantalla, (int(x) + TILE_SIZE // 2, int(y) + TILE_SIZE - 3), 26, 8)
 
         if self.moviendo:
             y -= math.sin(p * math.pi) * ALTURA_SALTITO  # saltito

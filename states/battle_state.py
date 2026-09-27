@@ -20,11 +20,12 @@ import math
 import random
 import pygame
 
-from config import ANCHO, ALTO, BLANCO, VERDE_OK, ROJO, AMARILLO, TEMAS_NOMBRE_VISIBLE
+from config import ANCHO, ALTO, BLANCO, AMARILLO, TEMAS_NOMBRE_VISIBLE
 from core.state import State
 from core.asset_manager import assets
 from core.audio import audio
 from core.texto import envolver_texto, dibujar_lineas
+from core.ui import dibujar_marco, dibujar_sombra
 from entities.ball import Ball, Tramo
 from battle.match_manager import MatchManager
 from battle.question_bank import QuestionBank
@@ -90,6 +91,10 @@ MENSAJES_FALLO = [
 # cuánto se queda el mensaje en pantalla DESPUÉS de que la pelota termina
 PAUSA_ACIERTO = 0.8
 PAUSA_FALLO = 2.2  # más larga para alcanzar a leer la respuesta correcta
+# colores de texto que se leen bien sobre el marco azul oscuro
+COLOR_ACIERTO = (120, 230, 130)
+COLOR_FALLO = (255, 120, 120)
+
 DURACION_PAF = 0.35  # el "¡PAF!" que sale cuando le pegas
 
 # animación de golpe de los personajes (se lanzan hacia la mesa y giran la raqueta)
@@ -180,7 +185,7 @@ class BattleState(State):
             self.game.datos_globales["aciertos"] += 1
             self.match.punto_para_jugador()
             self.mensaje_feedback = random.choice(MENSAJES_ACIERTO)
-            self.color_feedback = VERDE_OK
+            self.color_feedback = COLOR_ACIERTO
             self.pelota.lanzar(JUGADA_DEVOLUCION)
             self.golpe_jugador = 0.0
             audio.efecto("golpe")
@@ -190,7 +195,7 @@ class BattleState(State):
             self.match.punto_para_rival()
             texto_correcta = self.pregunta_actual["opciones"][correcta]
             self.mensaje_feedback = f"{random.choice(MENSAJES_FALLO)} La respuesta era: {texto_correcta}"
-            self.color_feedback = ROJO
+            self.color_feedback = COLOR_FALLO
             self.pelota.lanzar(JUGADA_FALLO)
             self.golpe_jugador = -RETRASO_GOLPE_FALLIDO  # le pega al aire cuando ya pasó
             audio.efecto("fallo")
@@ -260,9 +265,12 @@ class BattleState(State):
         - Golpeando: se lanza hacia la mesa y se inclina, como un swing."""
         y = PISO_Y - TAMANO_PERSONAJE
         y += int(2 * math.sin(self.tiempo * 4 + hacia))  # respirar
-        if t_golpe is not None and t_golpe >= 0:
+        golpeando = t_golpe is not None and t_golpe >= 0
+        if golpeando:
             fuerza = math.sin(t_golpe / DURACION_GOLPE * math.pi)  # 0 -> 1 -> 0
             x += int(hacia * AVANCE_GOLPE * fuerza)
+        dibujar_sombra(pantalla, (x + TAMANO_PERSONAJE // 2, PISO_Y - 4), int(TAMANO_PERSONAJE * 0.6), 14)
+        if golpeando:
             centro_pies = (x + TAMANO_PERSONAJE // 2, PISO_Y)
             # rotate: ángulo positivo = antihorario. Inclinarse hacia la derecha = negativo
             sprite = pygame.transform.rotate(sprite, -hacia * GIRO_GOLPE * fuerza)
@@ -271,9 +279,14 @@ class BattleState(State):
         pantalla.blit(sprite, (x, y))
 
     def dibujar(self, pantalla):
-        pantalla.fill((20, 60, 30))  # cancha de fondo (placeholder de color)
+        # fondo: gimnasio en pixel art (o un color si no existe el dibujo)
+        if assets.existe("ui/fondo_duelo.png"):
+            pantalla.blit(assets.get_image("ui/fondo_duelo.png", size=(ANCHO, ALTO)), (0, 0))
+        else:
+            pantalla.fill((20, 60, 30))
 
         # mesa de ping pong al centro (placeholder si no hay sprite) + la red
+        dibujar_sombra(pantalla, (MESA.centerx, PISO_Y - 2), int(MESA.w * 0.95), 18, opacidad=80)
         mesa = assets.get_image("tiles/tile_mesa.png", size=MESA.size)
         pantalla.blit(mesa, MESA.topleft)
         if not assets.existe("tiles/tile_mesa.png"):  # el dibujo real ya trae su red
@@ -291,12 +304,16 @@ class BattleState(State):
 
         tema_visible = TEMAS_NOMBRE_VISIBLE[self.rival.tema]
         titulo = self.fuente_marcador.render(f"Duelo: {tema_visible}", True, AMARILLO)
-        pantalla.blit(titulo, (20, 15))
+        dibujar_marco(pantalla, (12, 10, titulo.get_width() + 36, 46))
+        pantalla.blit(titulo, (30, 10 + (46 - titulo.get_height()) // 2))
 
         marcador = self.fuente_marcador.render(
             f"Tú {self.match.marcador_texto()} Rival", True, BLANCO
         )
-        pantalla.blit(marcador, (ANCHO // 2 - marcador.get_width() // 2, ALTO - 40))
+        caja_marcador = pygame.Rect(0, 0, marcador.get_width() + 48, 46)
+        caja_marcador.midbottom = (ANCHO // 2, ALTO - 8)
+        dibujar_marco(pantalla, caja_marcador)
+        pantalla.blit(marcador, marcador.get_rect(center=caja_marcador.center))
 
         if self.fase == self.FASE_ESPERANDO_RESPUESTA:
             self._dibujar_pregunta(pantalla)
@@ -365,15 +382,12 @@ class BattleState(State):
 
     @staticmethod
     def _dibujar_caja(pantalla, caja):
-        fondo = pygame.Surface(caja.size, pygame.SRCALPHA)
-        fondo.fill((0, 0, 0, 235))
-        pantalla.blit(fondo, caja.topleft)
-        pygame.draw.rect(pantalla, BLANCO, caja, 2)
+        dibujar_marco(pantalla, caja)
 
     def _dibujar_fin_duelo(self, pantalla):
         gano = self.match.gano_jugador()
         texto = "¡GANASTE EL DUELO!" if gano else "Perdiste este duelo... ¡inténtalo de nuevo!"
-        color = VERDE_OK if gano else ROJO
+        color = COLOR_ACIERTO if gano else COLOR_FALLO
         render = self.fuente_marcador.render(texto, True, color)
         ayuda = self.fuente_opciones.render("Presiona ESPACIO para volver al mapa", True, BLANCO)
 

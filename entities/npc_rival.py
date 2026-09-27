@@ -10,6 +10,7 @@ import math
 import pygame
 from config import TILE_SIZE, SPRITE_MAPA, VERDE_OK
 from core.asset_manager import assets
+from core.ui import dibujar_sombra
 
 
 def _version_apagada(sprite):
@@ -31,6 +32,7 @@ class NpcRival:
     def dibujar(self, pantalla, vencido=False, tiempo=0.0):
         sprite = assets.get_image(f"rivals/rival_{self.tema}.png", size=(SPRITE_MAPA, SPRITE_MAPA))
         destino = sprite.get_rect(midbottom=self.rect.midbottom)  # pies sobre su casilla
+        dibujar_sombra(pantalla, (self.rect.centerx, self.rect.bottom - 3), 30, 8)
         if not vencido:
             # "respira": se estira y encoge un poquito (cada rival a su propio ritmo)
             estirar = 1 + 0.05 * math.sin(tiempo * 3 + self.col + self.fila)

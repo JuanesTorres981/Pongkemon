@@ -64,7 +64,11 @@ assets/sprites/tiles/tile_pasto.png
 assets/sprites/tiles/tile_pared.png
 assets/sprites/tiles/tile_mesa.png      <- la mesa del duelo, vista de lado
 
-assets/sprites/ui/ball.png
+assets/sprites/ui/ball.png              <- estos 5 de ui/ se generan con
+assets/sprites/ui/marco.png                python tools/generar_pixel_art.py
+assets/sprites/ui/trofeo.png               (pixel art hecho con código; se
+assets/sprites/ui/exclamacion.png          pueden reemplazar por dibujos
+assets/sprites/ui/fondo_duelo.png          propios con el mismo nombre)
 ```
 
   **Recorten el espacio vacío** alrededor del dibujo antes de exportar (si
@@ -108,6 +112,16 @@ tiene audio, el juego sigue funcionando en silencio.
 - `P` = posición inicial del jugador (una sola vez en el archivo)
 - `1` a `5` = un rival de cada tema, en este orden (ver `config.TEMAS`):
   `1=historia, 2=reglamentacion, 3=indumentaria, 4=tecnica, 5=arbitraje`
+- Decoración (dibujos en `assets/sprites/deco/`, se generan con
+  `python tools/generar_pixel_art.py`):
+  - `T` = árbol, `c` = cerca → no se pueden atravesar
+  - `S` = letrero, `M` = mini mesa de práctica → no se atraviesan; al
+    chocarlos muestran un mensaje sobre la zona del rival más cercano
+  - `f` = flores, `v` = pasto alto → se camina encima (se mecen)
+
+Cada rival tiene su **zona**: una cancha de 3x3 casillas del color de su
+tema (`TEMAS_COLOR` en `config.py`), que se pone dorada al vencerlo. Si
+mueven un rival, dejen libres las 8 casillas que lo rodean.
 
 Pueden agitar filas/columnas libremente, solo cuidando que todas las
 filas tengan el mismo número de columnas (si no, el juego truena al cargar).
