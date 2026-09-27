@@ -8,7 +8,7 @@ en assets/sprites/player/.
 """
 
 import pygame
-from config import TILE_SIZE
+from config import TILE_SIZE, SPRITE_MAPA
 from core.asset_manager import assets
 
 
@@ -52,5 +52,6 @@ class Player:
 
     def dibujar(self, pantalla):
         sprite = assets.get_image(f"player/player_walk_{self.direccion}_0.png",
-                                   size=(TILE_SIZE, TILE_SIZE))
-        pantalla.blit(sprite, self.rect)
+                                   size=(SPRITE_MAPA, SPRITE_MAPA))
+        destino = sprite.get_rect(midbottom=self.rect.midbottom)  # pies sobre su casilla
+        pantalla.blit(sprite, destino)

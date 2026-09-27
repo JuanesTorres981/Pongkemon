@@ -49,6 +49,10 @@ class AssetManager:
         pygame.font.init()
         self._fuente_placeholder = pygame.font.SysFont("consolas", 10)
 
+    def existe(self, relative_path: str):
+        """True si ya está el .png real (y no se está usando un placeholder)."""
+        return os.path.isfile(os.path.join(SPRITES_DIR, relative_path))
+
     def get_image(self, relative_path: str, size=None):
         """
         relative_path: ruta relativa dentro de assets/sprites, ej:

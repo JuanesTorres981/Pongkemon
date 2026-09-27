@@ -37,7 +37,10 @@ preparado para eso, no hay que tocar nada más.
   - Llena `data/questions.json` con las preguntas reales de los 5 temas
     (historia, reglamentacion, indumentaria, tecnica, arbitraje). El
     campo `"correcta"` es el índice (empezando en 0) de la opción correcta
-    dentro de `"opciones"`.
+    dentro de `"opciones"`. El juego revuelve el orden de las opciones
+    cada vez que muestra la pregunta, así que no importa en qué posición
+    pongan la correcta. Ojo: que la correcta NO sea siempre la opción más
+    larga (es la pista más fácil de adivinar sin saber).
   - Exporta el pixel art del iPad respetando EXACTAMENTE estos nombres
     de archivo y los deja en la carpeta indicada. El juego los detecta
     solos, sin tocar código:
@@ -54,12 +57,25 @@ assets/sprites/rivals/rival_indumentaria.png
 assets/sprites/rivals/rival_tecnica.png
 assets/sprites/rivals/rival_arbitraje.png
 
+assets/sprites/tiles/fondo_mapa.png     <- imagen de TODO el mapa (si existe, reemplaza pasto/pared)
 assets/sprites/tiles/tile_pasto.png
 assets/sprites/tiles/tile_pared.png
-assets/sprites/tiles/tile_mesa.png
+assets/sprites/tiles/tile_mesa.png      <- la mesa del duelo, vista de lado
 
 assets/sprites/ui/ball.png
 ```
+
+  **Recorten el espacio vacío** alrededor del dibujo antes de exportar (si
+  el personaje ocupa una esquina de un lienzo de 1280x1280 se ve diminuto).
+  Personajes: lienzo cuadrado. Los dibujos originales que mandaron por
+  WhatsApp quedaron en `assets/originales/` con nombres descriptivos.
+
+  Asignación actual: jugador = Mew; rivales = Charmander (historia,
+  indumentaria, arbitraje) y Squirtle (reglamentación, técnica). Arbitraje
+  repite pose hasta que haya un dibujo nuevo para ese rival.
+
+  Si cambian `fondo_mapa.png`, hay que regenerar las paredes de
+  `data/map.csv` para que coincidan con los arbustos del dibujo.
 
   Tamaño recomendado: 32x32 px para tiles y personajes (coincide con
   `TILE_SIZE` en `config.py`), 64x64 o más para el sprite del rival en
@@ -80,9 +96,10 @@ filas tengan el mismo número de columnas (si no, el juego truena al cargar).
 
 ## Qué falta / próximos pasos
 
-- [ ] Llenar `data/questions.json` con preguntas reales (con buena
-      investigación y fuentes — recuerden que la profe pide bibliografía
-      APA en el recurso escrito, aunque acá en el JSON no hace falta citarlo).
+- [x] Llenar `data/questions.json` con preguntas reales (80 preguntas,
+      15-17 por tema). Falta que el equipo las revise contra sus fuentes
+      — recuerden que la profe pide bibliografía APA en el recurso escrito,
+      aunque acá en el JSON no hace falta citarlo.
 - [ ] Reemplazar los placeholders por el pixel art real.
 - [ ] (Opcional) Sonido al acertar/fallar.
 - [ ] (Opcional) Animación de "victoria" del jugador en vez de solo texto.

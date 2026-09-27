@@ -13,7 +13,8 @@ Editar el mapa es solo editar ese .csv, no hay que tocar este archivo.
 import csv
 import pygame
 
-from config import TILE_SIZE, VERDE_PASTO, BLANCO, MAP_PATH, TEMAS
+from config import (TILE_SIZE, VERDE_PASTO, BLANCO, NEGRO, ANCHO, ALTO, MAP_PATH,
+                    MAPA_FONDO, TEMAS, TEMAS_NOMBRE_VISIBLE)
 from core.state import State
 from core.asset_manager import assets
 from entities.player import Player
@@ -41,6 +42,13 @@ class Mapa:
         return valor in (".", "P")
 
     def dibujar(self, pantalla):
+        # si hay una imagen de fondo para todo el mapa, se usa esa (las paredes
+        # ya vienen dibujadas en la imagen; el .csv solo dice por dónde se camina)
+        if assets.existe(MAPA_FONDO):
+            tamano = (self.columnas * TILE_SIZE, self.filas * TILE_SIZE)
+            pantalla.blit(assets.get_image(MAPA_FONDO, size=tamano), (0, 0))
+            return
+
         for fila in range(self.filas):
             for col in range(self.columnas):
                 valor = self.celdas[fila][col]
@@ -59,7 +67,8 @@ class OverworldState(State):
         self.mapa = Mapa(MAP_PATH)
         self.rivales = self._crear_rivales_desde_mapa()
         self.jugador = self._crear_jugador_desde_mapa()
-        self.mensaje = ""  # se muestra abajo, ej "Presiona ESPACIO para retar a Historia"
+        self.mensaje = ""  # se muestra abajo, ej "Ya venciste al rival de Historia."
+        self.fuente_mensaje = pygame.font.SysFont("consolas", 18)
 
     def _crear_jugador_desde_mapa(self):
         for fila in range(self.mapa.filas):
@@ -98,9 +107,18 @@ class OverworldState(State):
             if rival is not None:
                 self.jugador.direccion = {(-1, 0): "left", (1, 0): "right",
                                            (0, -1): "up", (0, 1): "down"}[(dx, dy)]
-                self._iniciar_batalla(rival)
+                if self._esta_vencido(rival):
+                    # ya le ganaste: no se repite el duelo, solo se avisa
+                    self.mensaje = f"Ya venciste al rival de {TEMAS_NOMBRE_VISIBLE[rival.tema]}."
+                else:
+                    self.mensaje = ""
+                    self._iniciar_batalla(rival)
             else:
+                self.mensaje = ""
                 self.jugador.mover(dx, dy, self.mapa)
+
+    def _esta_vencido(self, rival):
+        return rival.id in self.game.datos_globales["rivales_vencidos"]
 
     def _rival_en(self, col, fila):
         for rival in self.rivales:
@@ -119,6 +137,12 @@ class OverworldState(State):
     def dibujar(self, pantalla):
         self.mapa.dibujar(pantalla)
         for rival in self.rivales:
-            vencido = rival.id in self.game.datos_globales["rivales_vencidos"]
-            rival.dibujar(pantalla, vencido=vencido)
+            rival.dibujar(pantalla, vencido=self._esta_vencido(rival))
         self.jugador.dibujar(pantalla)
+
+        if self.mensaje:
+            caja = pygame.Rect(20, ALTO - 70, ANCHO - 40, 50)
+            pygame.draw.rect(pantalla, NEGRO, caja)
+            pygame.draw.rect(pantalla, BLANCO, caja, 2)
+            texto = self.fuente_mensaje.render(self.mensaje, True, BLANCO)
+            pantalla.blit(texto, (caja.x + 15, caja.centery - texto.get_height() // 2))

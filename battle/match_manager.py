@@ -19,6 +19,7 @@ class MatchManager:
         self.juegos_ganados_rival = 0
         self.puntos_jugador = 0
         self.puntos_rival = 0
+        self.marcador_ultimo_juego = "0 - 0"  # para mostrarlo cuando el duelo ya terminó
         self.juegos_necesarios_para_ganar_duelo = (JUEGOS_POR_DUELO // 2) + 1
 
     def punto_para_jugador(self):
@@ -41,6 +42,7 @@ class MatchManager:
             self.juegos_ganados_jugador += 1
         else:
             self.juegos_ganados_rival += 1
+        self.marcador_ultimo_juego = f"{self.puntos_jugador} - {self.puntos_rival}"
         self.puntos_jugador = 0
         self.puntos_rival = 0
 
@@ -54,4 +56,6 @@ class MatchManager:
         return self.juegos_ganados_jugador > self.juegos_ganados_rival
 
     def marcador_texto(self):
+        if self.duelo_terminado():
+            return self.marcador_ultimo_juego
         return f"{self.puntos_jugador} - {self.puntos_rival}"

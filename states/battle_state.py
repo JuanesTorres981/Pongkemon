@@ -3,19 +3,27 @@ battle_state.py
 ----------------
 La pantalla de duelo: el rival "lanza" una pelota junto a una pregunta
 de su tema. El jugador responde con las teclas 1-4.
-- Correcta -> punto para el jugador
-- Incorrecta -> punto para la máquina (el rival)
+- Correcta   -> le devuelves la pelota al rival y es punto para ti
+- Incorrecta -> la pelota se te pasa, se sale de la mesa y es punto del rival
 
 Usa MatchManager para llevar el marcador con las reglas reales
 (11 puntos, diferencia de 2) y QuestionBank para traer las preguntas.
+
+Fases del duelo (en orden):
+    LANZANDO            -> la pelota viaja del rival hacia ti
+    ESPERANDO_RESPUESTA -> aparece la pregunta
+    RESULTADO           -> animación de la devolución (o del fallo) + mensaje
+    FIN_DUELO           -> alguien ganó el juego
 """
 
+import random
 import pygame
 
-from config import ANCHO, ALTO, TILE_SIZE, BLANCO, NEGRO, VERDE_OK, ROJO, AMARILLO, TEMAS_NOMBRE_VISIBLE
+from config import ANCHO, ALTO, BLANCO, VERDE_OK, ROJO, AMARILLO, TEMAS_NOMBRE_VISIBLE
 from core.state import State
 from core.asset_manager import assets
-from entities.ball import Ball
+from core.texto import envolver_texto, dibujar_lineas
+from entities.ball import Ball, Tramo
 from battle.match_manager import MatchManager
 from battle.question_bank import QuestionBank
 
@@ -30,10 +38,63 @@ def _obtener_banco():
     return _banco_preguntas
 
 
+# ---------- geometría de la escena ----------
+# La mesa se dibuja vista de lado (con patas) respetando la proporción de
+# tile_mesa.png. Si cambian el dibujo de la mesa, ajusten estos dos valores:
+PROPORCION_MESA = 432 / 1103  # alto / ancho de la imagen
+ALTURA_SUPERFICIE = 0.354     # dónde está la superficie verde (0 = arriba, 1 = abajo de la imagen)
+
+_ancho_mesa = 460
+_alto_mesa = int(_ancho_mesa * PROPORCION_MESA)
+CENTRO_Y = ALTO // 2  # la pelota bota a esta altura (sobre la superficie verde)
+MESA = pygame.Rect((ANCHO - _ancho_mesa) // 2, CENTRO_Y - int(_alto_mesa * ALTURA_SUPERFICIE),
+                   _ancho_mesa, _alto_mesa)
+PISO_Y = MESA.bottom          # donde terminan las patas (los personajes se paran aquí)
+X_RIVAL = MESA.left - 5       # donde le pega el rival (extremo izquierdo)
+X_JUGADOR = MESA.right + 5    # donde le pegas tú (extremo derecho)
+TAMANO_PERSONAJE = 150
+BOTE = 140                    # qué tan lejos de la red bota la pelota
+
+# ---------- jugadas (trayectorias de la pelota) ----------
+# el rival te la manda: bota en tu mitad de la mesa y llega a tu raqueta
+JUGADA_RIVAL = [
+    Tramo((X_RIVAL, CENTRO_Y), (MESA.centerx + BOTE, CENTRO_Y), 0.7, 70),
+    Tramo((MESA.centerx + BOTE, CENTRO_Y), (X_JUGADOR, CENTRO_Y), 0.35, 35),
+]
+# acertaste: se la devuelves, bota en la mitad del rival y le llega
+JUGADA_DEVOLUCION = [
+    Tramo((X_JUGADOR, CENTRO_Y), (MESA.centerx - BOTE, CENTRO_Y), 0.6, 80),
+    Tramo((MESA.centerx - BOTE, CENTRO_Y), (X_RIVAL, CENTRO_Y), 0.3, 35),
+]
+# fallaste: no le pegas, la pelota sigue de largo, cae al piso, bota y se va
+JUGADA_FALLO = [
+    Tramo((X_JUGADOR, CENTRO_Y), (X_JUGADOR + 40, PISO_Y), 0.4, 20),
+    Tramo((X_JUGADOR + 40, PISO_Y), (ANCHO + 40, PISO_Y), 0.45, 40),
+]
+
+MENSAJES_ACIERTO = [
+    "¡Correcto! Se la devolviste con todo.",
+    "¡Eso! Punto para ti.",
+    "¡Qué golpe! El rival ni la vio venir.",
+    "¡Bien jugado! Ese punto es tuyo.",
+]
+MENSAJES_FALLO = [
+    "¡Uy! Se te pasó la pelota.",
+    "¡Nooo! Le pegaste al aire.",
+    "Punto para el rival...",
+    "Se te fue la pelota de la mesa.",
+]
+
+# cuánto se queda el mensaje en pantalla DESPUÉS de que la pelota termina
+PAUSA_ACIERTO = 0.8
+PAUSA_FALLO = 2.2  # más larga para alcanzar a leer la respuesta correcta
+DURACION_PAF = 0.35  # el "¡PAF!" que sale cuando le pegas
+
+
 class BattleState(State):
     FASE_LANZANDO = "lanzando"
     FASE_ESPERANDO_RESPUESTA = "esperando_respuesta"
-    FASE_FEEDBACK = "feedback"
+    FASE_RESULTADO = "resultado"
     FASE_FIN_DUELO = "fin_duelo"
 
     def __init__(self, game, rival, estado_anterior):
@@ -52,10 +113,11 @@ class BattleState(State):
         self.fuente_marcador = pygame.font.SysFont("consolas", 24, bold=True)
 
         self.fase = None
-        self.pelota = Ball(x_inicio=120, x_final=ANCHO - 120, y=ALTO // 2 - 40)
+        self.pelota = Ball(X_RIVAL, CENTRO_Y)
+        self.acerto = False
         self.mensaje_feedback = ""
         self.color_feedback = BLANCO
-        self.tiempo_feedback = 0.0
+        self.tiempo_resultado = 0.0  # tiempo transcurrido dentro de FASE_RESULTADO
 
         self._nueva_pregunta()
 
@@ -68,7 +130,7 @@ class BattleState(State):
         if indice is not None:
             self.preguntas_usadas.add(indice)
 
-        self.pelota.reiniciar()
+        self.pelota.lanzar(JUGADA_RIVAL)
         self.fase = self.FASE_LANZANDO
 
     def manejar_evento(self, evento):
@@ -80,6 +142,11 @@ class BattleState(State):
             if evento.key in teclas_opciones:
                 self._responder(teclas_opciones[evento.key])
 
+        elif self.fase == self.FASE_RESULTADO:
+            # ESPACIO / ENTER salta la pausa, pero solo cuando ya terminó la animación
+            if evento.key in (pygame.K_SPACE, pygame.K_RETURN) and self.pelota.terminado:
+                self._despues_del_resultado()
+
         elif self.fase == self.FASE_FIN_DUELO:
             if evento.key == pygame.K_SPACE:
                 self._terminar_batalla()
@@ -88,24 +155,43 @@ class BattleState(State):
         if self.pregunta_actual is None:
             return
         correcta = self.pregunta_actual["correcta"]
+        self.acerto = indice_elegido == correcta
 
-        if indice_elegido == correcta:
+        if self.acerto:
+            self.game.datos_globales["aciertos"] += 1
             self.match.punto_para_jugador()
-            self.mensaje_feedback = "¡Correcto! Punto para ti."
+            self.mensaje_feedback = random.choice(MENSAJES_ACIERTO)
             self.color_feedback = VERDE_OK
+            self.pelota.lanzar(JUGADA_DEVOLUCION)
         else:
+            self.game.datos_globales["fallos"] += 1
             self.match.punto_para_rival()
             texto_correcta = self.pregunta_actual["opciones"][correcta]
-            self.mensaje_feedback = f"Incorrecto. Era: {texto_correcta}"
+            self.mensaje_feedback = f"{random.choice(MENSAJES_FALLO)} La respuesta era: {texto_correcta}"
             self.color_feedback = ROJO
+            self.pelota.lanzar(JUGADA_FALLO)
 
-        self.tiempo_feedback = 1.6
-        self.fase = self.FASE_FEEDBACK
+        self.tiempo_resultado = 0.0
+        self.fase = self.FASE_RESULTADO
+
+    def _despues_del_resultado(self):
+        if self.match.duelo_terminado():
+            self.pelota.visible = False
+            self.fase = self.FASE_FIN_DUELO
+        else:
+            self._nueva_pregunta()
 
     def _terminar_batalla(self):
         if self.match.gano_jugador():
             self.game.datos_globales["rivales_vencidos"].add(self.rival.id)
-        self.game.cambiar_estado(self.estado_anterior)
+
+        # si ya se vencieron todos los rivales del mapa -> pantalla final
+        ids_rivales = {r.id for r in self.estado_anterior.rivales}
+        if ids_rivales and ids_rivales <= self.game.datos_globales["rivales_vencidos"]:
+            from states.final_state import FinalState
+            self.game.cambiar_estado(FinalState(self.game))
+        else:
+            self.game.cambiar_estado(self.estado_anterior)
 
     # ---------- loop ----------
 
@@ -115,24 +201,32 @@ class BattleState(State):
             if self.pelota.terminado:
                 self.fase = self.FASE_ESPERANDO_RESPUESTA
 
-        elif self.fase == self.FASE_FEEDBACK:
-            self.tiempo_feedback -= dt
-            if self.tiempo_feedback <= 0:
-                if self.match.duelo_terminado():
-                    self.fase = self.FASE_FIN_DUELO
-                else:
-                    self._nueva_pregunta()
+        elif self.fase == self.FASE_RESULTADO:
+            self.pelota.actualizar(dt)
+            self.tiempo_resultado += dt
+            if self.pelota.terminado:
+                self.pelota.visible = self.acerto  # la que se fue de la mesa ya no se ve
+                pausa = PAUSA_ACIERTO if self.acerto else PAUSA_FALLO
+                duracion_jugada = sum(t.duracion for t in (JUGADA_DEVOLUCION if self.acerto else JUGADA_FALLO))
+                if self.tiempo_resultado >= duracion_jugada + pausa:
+                    self._despues_del_resultado()
 
     def dibujar(self, pantalla):
         pantalla.fill((20, 60, 30))  # cancha de fondo (placeholder de color)
 
-        # mesa de ping pong al centro (placeholder si no hay sprite)
-        mesa = assets.get_image("tiles/tile_mesa.png", size=(ANCHO - 200, 120))
-        pantalla.blit(mesa, (100, ALTO // 2 - 60))
+        # mesa de ping pong al centro (placeholder si no hay sprite) + la red
+        mesa = assets.get_image("tiles/tile_mesa.png", size=MESA.size)
+        pantalla.blit(mesa, MESA.topleft)
+        if not assets.existe("tiles/tile_mesa.png"):  # el dibujo real ya trae su red
+            pygame.draw.line(pantalla, BLANCO, (MESA.centerx, MESA.top - 6), (MESA.centerx, MESA.bottom + 6), 3)
 
-        # sprite del rival arriba, jugador (silueta simple) abajo -- estético
-        sprite_rival = assets.get_image(f"rivals/rival_{self.rival.tema}.png", size=(64, 64))
-        pantalla.blit(sprite_rival, (ANCHO // 2 - 32, 40))
+        # rival a la izquierda de la mesa, jugador a la derecha
+        sprite_rival = assets.get_image(f"rivals/rival_{self.rival.tema}.png",
+                                        size=(TAMANO_PERSONAJE, TAMANO_PERSONAJE))
+        pantalla.blit(sprite_rival, (MESA.left + 10 - TAMANO_PERSONAJE, PISO_Y - TAMANO_PERSONAJE))
+        sprite_jugador = assets.get_image("player/player_walk_left_0.png",
+                                          size=(TAMANO_PERSONAJE, TAMANO_PERSONAJE))
+        pantalla.blit(sprite_jugador, (MESA.right - 10, PISO_Y - TAMANO_PERSONAJE))
 
         tema_visible = TEMAS_NOMBRE_VISIBLE[self.rival.tema]
         titulo = self.fuente_marcador.render(f"Duelo: {tema_visible}", True, AMARILLO)
@@ -143,39 +237,87 @@ class BattleState(State):
         )
         pantalla.blit(marcador, (ANCHO // 2 - marcador.get_width() // 2, ALTO - 40))
 
-        if self.fase == self.FASE_LANZANDO:
-            self.pelota.dibujar(pantalla)
-
-        elif self.fase in (self.FASE_ESPERANDO_RESPUESTA, self.FASE_FEEDBACK):
+        if self.fase == self.FASE_ESPERANDO_RESPUESTA:
             self._dibujar_pregunta(pantalla)
 
-        if self.fase == self.FASE_FEEDBACK:
-            texto = self.fuente_opciones.render(self.mensaje_feedback, True, self.color_feedback)
-            pantalla.blit(texto, (ANCHO // 2 - texto.get_width() // 2, 300))
+        elif self.fase == self.FASE_RESULTADO:
+            if self.acerto and self.tiempo_resultado < DURACION_PAF:
+                paf = self.fuente_marcador.render("¡PAF!", True, AMARILLO)
+                pantalla.blit(paf, (MESA.right - paf.get_width() // 2, CENTRO_Y - 80))
+            self._dibujar_feedback(pantalla)
 
-        if self.fase == self.FASE_FIN_DUELO:
+        elif self.fase == self.FASE_FIN_DUELO:
             self._dibujar_fin_duelo(pantalla)
 
+        # la pelota va de última para que ninguna caja la tape
+        if self.fase in (self.FASE_LANZANDO, self.FASE_RESULTADO):
+            self.pelota.dibujar(pantalla)
+
     def _dibujar_pregunta(self, pantalla):
+        """Dibuja la caja con la pregunta y opciones, con salto de línea
+        automático. La caja crece según el texto. Devuelve la 'y' donde termina."""
         if self.pregunta_actual is None:
-            return
-        caja = pygame.Rect(40, 190, ANCHO - 80, 190)
-        pygame.draw.rect(pantalla, (0, 0, 0, 180), caja)
-        pygame.draw.rect(pantalla, BLANCO, caja, 2)
+            return 70
+        margen = 15
+        caja_x, caja_y = 40, 70
+        ancho_caja = ANCHO - 80
+        ancho_texto = ancho_caja - 2 * margen
 
-        pregunta_txt = self.fuente_pregunta.render(self.pregunta_actual["pregunta"], True, BLANCO)
-        pantalla.blit(pregunta_txt, (caja.x + 15, caja.y + 15))
+        lineas_pregunta = envolver_texto(self.pregunta_actual["pregunta"], self.fuente_pregunta, ancho_texto)
 
+        # cada opción se envuelve por separado; las líneas de continuación
+        # quedan alineadas debajo del texto, no debajo del "1)"
+        bloques_opciones = []
         for i, opcion in enumerate(self.pregunta_actual["opciones"]):
-            linea = self.fuente_opciones.render(f"{i + 1}) {opcion}", True, BLANCO)
-            pantalla.blit(linea, (caja.x + 25, caja.y + 55 + i * 30))
+            prefijo = f"{i + 1}) "
+            sangria = self.fuente_opciones.size(prefijo)[0]
+            lineas = envolver_texto(opcion, self.fuente_opciones, ancho_texto - 10 - sangria)
+            bloques_opciones.append((prefijo, sangria, lineas))
+
+        alto_preg = len(lineas_pregunta) * self.fuente_pregunta.get_linesize()
+        alto_opc = sum(len(l) for _, _, l in bloques_opciones) * self.fuente_opciones.get_linesize()
+        alto_caja = margen + alto_preg + 12 + alto_opc + 6 * len(bloques_opciones) + margen
+
+        caja = pygame.Rect(caja_x, caja_y, ancho_caja, alto_caja)
+        self._dibujar_caja(pantalla, caja)
+
+        y = dibujar_lineas(pantalla, lineas_pregunta, self.fuente_pregunta, BLANCO,
+                           caja.x + margen, caja.y + margen)
+        y += 12
+        for prefijo, sangria, lineas in bloques_opciones:
+            x = caja.x + margen + 10
+            pantalla.blit(self.fuente_opciones.render(prefijo, True, AMARILLO), (x, y))
+            y = dibujar_lineas(pantalla, lineas, self.fuente_opciones, BLANCO, x + sangria, y)
+            y += 6
+        return caja.bottom
+
+    def _dibujar_feedback(self, pantalla):
+        """Mensaje de acierto/fallo debajo de la mesa, sin tapar la animación."""
+        margen = 12
+        ancho_caja = ANCHO - 80
+        lineas = envolver_texto(self.mensaje_feedback, self.fuente_pregunta, ancho_caja - 2 * margen)
+        alto = len(lineas) * self.fuente_pregunta.get_linesize() + 2 * margen
+        caja = pygame.Rect(40, PISO_Y + 14, ancho_caja, alto)
+        self._dibujar_caja(pantalla, caja)
+        dibujar_lineas(pantalla, lineas, self.fuente_pregunta, self.color_feedback,
+                       caja.x + margen, caja.y + margen, centrado=True, ancho_centro=ancho_caja - 2 * margen)
+
+    @staticmethod
+    def _dibujar_caja(pantalla, caja):
+        fondo = pygame.Surface(caja.size, pygame.SRCALPHA)
+        fondo.fill((0, 0, 0, 235))
+        pantalla.blit(fondo, caja.topleft)
+        pygame.draw.rect(pantalla, BLANCO, caja, 2)
 
     def _dibujar_fin_duelo(self, pantalla):
         gano = self.match.gano_jugador()
         texto = "¡GANASTE EL DUELO!" if gano else "Perdiste este duelo... ¡inténtalo de nuevo!"
         color = VERDE_OK if gano else ROJO
         render = self.fuente_marcador.render(texto, True, color)
-        pantalla.blit(render, (ANCHO // 2 - render.get_width() // 2, ALTO // 2))
-
         ayuda = self.fuente_opciones.render("Presiona ESPACIO para volver al mapa", True, BLANCO)
-        pantalla.blit(ayuda, (ANCHO // 2 - ayuda.get_width() // 2, ALTO // 2 + 40))
+
+        caja = pygame.Rect(0, 0, max(render.get_width(), ayuda.get_width()) + 60, 100)
+        caja.center = (ANCHO // 2, ALTO // 2)
+        self._dibujar_caja(pantalla, caja)
+        pantalla.blit(render, (ANCHO // 2 - render.get_width() // 2, caja.y + 20))
+        pantalla.blit(ayuda, (ANCHO // 2 - ayuda.get_width() // 2, caja.y + 62))

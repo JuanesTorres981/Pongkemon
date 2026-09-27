@@ -17,9 +17,13 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 
 QUESTIONS_PATH = os.path.join(DATA_DIR, "questions.json")
 MAP_PATH = os.path.join(DATA_DIR, "map.csv")
+# imagen de fondo de todo el mapa (ruta dentro de assets/sprites). Si no existe,
+# el mapa se dibuja con tile_pasto / tile_pared casilla por casilla.
+MAPA_FONDO = "tiles/fondo_mapa.png"
 
 # ---------- VENTANA ----------
 TILE_SIZE = 32          # tamaño de cada casilla del mapa, en pixeles
+SPRITE_MAPA = 48        # tamaño de los personajes en el mapa (sobresalen de su casilla, como en Pokémon)
 ANCHO = 800
 ALTO = 600
 FPS = 60

@@ -7,8 +7,15 @@ banco de preguntas saldrán sus preguntas al enfrentarlo.
 """
 
 import pygame
-from config import TILE_SIZE
+from config import TILE_SIZE, SPRITE_MAPA, VERDE_OK
 from core.asset_manager import assets
+
+
+def _version_apagada(sprite):
+    """Copia del sprite en gris y oscurecida (respeta la transparencia del png)."""
+    gris = pygame.transform.grayscale(sprite)
+    gris.fill((110, 110, 110, 255), special_flags=pygame.BLEND_RGBA_MULT)
+    return gris
 
 
 class NpcRival:
@@ -18,10 +25,21 @@ class NpcRival:
         self.tema = tema
         self.id = id_unico  # para saber si ya fue vencido (datos_globales["rivales_vencidos"])
         self.rect = pygame.Rect(col * TILE_SIZE, fila * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+        self._sprite_apagado = None  # se genera una sola vez, la primera vez que se necesita
 
     def dibujar(self, pantalla, vencido=False):
-        sprite = assets.get_image(f"rivals/rival_{self.tema}.png", size=(TILE_SIZE, TILE_SIZE))
-        if vencido:
-            sprite = sprite.copy()
-            sprite.set_alpha(90)  # se ve "apagado" si ya lo venciste
-        pantalla.blit(sprite, self.rect)
+        sprite = assets.get_image(f"rivals/rival_{self.tema}.png", size=(SPRITE_MAPA, SPRITE_MAPA))
+        destino = sprite.get_rect(midbottom=self.rect.midbottom)  # pies sobre su casilla
+        if not vencido:
+            pantalla.blit(sprite, destino)
+            return
+
+        # vencido: en gris oscuro + palomita verde, para que se note bien
+        if self._sprite_apagado is None:
+            self._sprite_apagado = _version_apagada(sprite)
+        pantalla.blit(self._sprite_apagado, destino)
+
+        x, y, t = destino.x, destino.y, SPRITE_MAPA
+        puntos = [(x + t * 0.25, y + t * 0.5), (x + t * 0.42, y + t * 0.7), (x + t * 0.78, y + t * 0.28)]
+        pygame.draw.lines(pantalla, (0, 0, 0), False, puntos, 6)  # borde negro
+        pygame.draw.lines(pantalla, VERDE_OK, False, puntos, 3)

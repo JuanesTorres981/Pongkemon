@@ -38,4 +38,16 @@ class QuestionBank:
             disponibles = list(range(len(preguntas)))  # se acabaron, reciclamos
 
         indice = random.choice(disponibles)
-        return indice, preguntas[indice]
+        return indice, self._con_opciones_revueltas(preguntas[indice])
+
+    @staticmethod
+    def _con_opciones_revueltas(pregunta):
+        """Devuelve una copia de la pregunta con las opciones en orden aleatorio
+        (y 'correcta' actualizado), para que no se memorice "era la 2"."""
+        orden = list(range(len(pregunta["opciones"])))
+        random.shuffle(orden)
+        return {
+            "pregunta": pregunta["pregunta"],
+            "opciones": [pregunta["opciones"][i] for i in orden],
+            "correcta": orden.index(pregunta["correcta"]),
+        }

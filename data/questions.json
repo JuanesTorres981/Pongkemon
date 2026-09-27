@@ -1,47 +1,416 @@
 {
   "historia": [
     {
-      "pregunta": "¿En qué país se originó el tenis de mesa a finales del siglo XIX?",
-      "opciones": ["China", "Inglaterra", "Japón", "Estados Unidos"],
+      "pregunta": "Antes de ser deporte olímpico, el tenis de mesa era el juego de sobremesa de la clase alta de... ¿qué país?",
+      "opciones": ["Inglaterra", "China", "Japón", "Estados Unidos"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "Los primeros jugadores improvisaban con lo que había en la casa. ¿Qué usaban como red sobre la mesa del comedor?",
+      "opciones": ["Una cortina doblada", "Una fila de libros", "Palos de escoba atados", "Una raqueta de tenis acostada"],
       "correcta": 1
     },
     {
-      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
-      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "pregunta": "¿Y qué hacía de pelota en esas partidas caseras del siglo XIX? Pista: salía de una botella de celebración.",
+      "opciones": ["Una canica de vidrio", "Una bola de papel mojado", "Un corcho de champaña", "Una nuez pelada"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "El nombre \"Ping-Pong\" viene de...",
+      "opciones": ["El apellido de su inventor chino", "Una ciudad inglesa llamada Pingham", "Un grito de guerra de los marineros", "El sonido de la pelota al rebotar"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "Una empresa inglesa registró \"Ping-Pong\" como marca y nadie más podía usar el nombre. ¿Qué pasó entonces?",
+      "opciones": ["Se empezó a llamar tenis de mesa", "Se prohibió jugarlo en público", "Se cambió por \"bádminton de mesa\"", "Nada, todos siguieron diciendo ping-pong"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "Alrededor de 1900 apareció una pelota que rebotaba muchísimo mejor. ¿De qué material era?",
+      "opciones": ["Caucho macizo", "Celuloide", "Cuero cosido", "Corcho prensado"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "En 1901, E. C. Goode tuvo una idea que cambió las raquetas para siempre. ¿Cuál fue?",
+      "opciones": ["Hacerlas de aluminio", "Ponerles un mango doble", "Pegarles goma con granos", "Agujerearlas para que pesaran menos"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿En qué año se fundó la Federación Internacional de Tenis de Mesa (ITTF)?",
+      "opciones": ["1896", "1952", "1988", "1926"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "El primer Campeonato Mundial se jugó en 1926. ¿En qué ciudad?",
+      "opciones": ["Londres", "París", "Berlín", "Budapest"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "¿En qué Juegos Olímpicos debutó oficialmente el tenis de mesa?",
+      "opciones": ["Moscú 1980", "Seúl 1988", "Barcelona 1992", "Atlanta 1996"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "En 1971, unos partidos entre jugadores de EE. UU. y China ayudaron a acercar a dos países que no se hablaban. ¿Cómo se le llamó a eso?",
+      "opciones": ["La guerra fría de raquetas", "El tratado de la raqueta dorada", "La diplomacia del ping-pong", "El saque de la paz"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "Después de Sídney 2000, la pelota pasó de 38 mm a 40 mm. ¿Para qué la agrandaron?",
+      "opciones": ["Para que costara menos fabricarla", "Para que no se rompiera con los remates", "Porque la de 38 mm ya no se conseguía", "Para hacerla más lenta y visible en TV"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "Hasta 2001 un juego se ganaba llegando a 21 puntos. ¿A cuánto se juega ahora?",
+      "opciones": ["A 11", "A 15", "A 10", "A 25"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "En 2014 la pelota de celuloide se jubiló (entre otras cosas, era inflamable). ¿Qué la reemplazó?",
+      "opciones": ["Una pelota de goma espuma", "Una pelota de plástico", "Una pelota de vidrio templado", "Una pelota de fibra de carbono"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "¿Qué país ha dominado el tenis de mesa mundial en las últimas décadas, al punto de ganar casi todo?",
+      "opciones": ["Alemania", "Brasil", "China", "Suecia"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "En 1952 el japonés Hiroji Satoh fue campeón del mundo y dejó a todos con la boca abierta. ¿Cuál era su \"arma secreta\"?",
+      "opciones": ["Jugar con las dos manos", "Una pelota fabricada por él mismo", "Sacar siempre de espaldas", "Una raqueta con esponja gruesa"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "Tokio 2020 estrenó una nueva modalidad olímpica de tenis de mesa. ¿Cuál?",
+      "opciones": ["Dobles mixtos", "Individual sub-21", "Dobles masculinos", "Tríos por equipos"],
       "correcta": 0
     }
   ],
+
   "reglamentacion": [
     {
-      "pregunta": "¿A cuántos puntos se gana un juego (game) en tenis de mesa?",
-      "opciones": ["10", "11", "15", "21"],
+      "pregunta": "Van 10-10 y los nervios están a mil. ¿Qué tiene que pasar para que alguien gane el juego?",
+      "opciones": ["El próximo punto lo decide todo", "Sacar ventaja de 2 puntos", "Llegar primero a 15", "Se juega un desempate de saques"],
       "correcta": 1
     },
     {
-      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
-      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "pregunta": "En un juego normal, ¿cada cuántos puntos cambia el saque?",
+      "opciones": ["Cada punto", "Cada 5 puntos", "Cada 2 puntos", "Cuando el que saca pierde"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿Y qué pasa con el saque cuando el marcador llega a 10-10?",
+      "opciones": ["Saca siempre el que va perdiendo", "Sigue cambiando cada 2", "Lo decide una moneda", "Cambia en cada punto"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "Al sacar, ¿cuánto debe subir como mínimo la pelota cuando la lanzas desde la palma abierta?",
+      "opciones": ["16 cm", "5 cm", "10 cm", "30 cm"],
       "correcta": 0
+    },
+    {
+      "pregunta": "Tu saque roza la red y luego cae perfecto en el lado del rival. ¿Qué se canta?",
+      "opciones": ["Punto para ti, por estilo", "Let: se repite el saque", "Punto para el rival", "Falta y cambio de saque"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "¿Cuánto mide de alto la red?",
+      "opciones": ["10 cm", "18,75 cm", "15,25 cm", "20 cm"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿Cuáles son las medidas oficiales de la mesa (largo x ancho)?",
+      "opciones": ["3 m x 1,5 m", "2,50 m x 1,20 m", "2,90 m x 1,600 m", "2,74 m x 1,525 m"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "¿A qué altura del suelo está la superficie de juego de la mesa?",
+      "opciones": ["76 cm", "60 cm", "90 cm", "1 metro"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "Tu rival remata y tú, con reflejos de ninja, le pegas a la pelota en el aire antes de que rebote en tu lado. ¿Qué pasa?",
+      "opciones": ["Ganas el punto por reflejos", "Pierdes el punto", "Se repite el punto", "Nada, se sigue jugando"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "En plena jugada apoyas la mano libre sobre la mesa para no caerte. ¿Qué dice el reglamento?",
+      "opciones": ["Se vale si fue sin querer", "Se repite el punto", "Pierdes el punto", "Solo es falta en el saque"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "La pelota pega justo en el borde de arriba de la mesa y sale toda loca. ¿Vale ese punto?",
+      "opciones": ["No, eso siempre cuenta como falta", "Se repite el punto", "Solo vale en dobles", "Sí, es un punto válido"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "En dobles, ¿hacia dónde tiene que ir el saque?",
+      "opciones": ["En diagonal, de derecha a derecha", "Donde quieras, siempre que rebote", "Recto, a la mitad de enfrente", "En diagonal, de izquierda a izquierda"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "En dobles, ¿cómo se turnan los golpes los compañeros?",
+      "opciones": ["Golpea el que esté más cerca", "Se alternan: un golpe cada uno", "Uno saca y el otro hace el resto", "El capitán decide en cada punto"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "¿Cuánto dura un tiempo muerto (time out) y cuántos tiene cada jugador?",
+      "opciones": ["30 segundos, uno por juego", "2 minutos, dos por partido", "1 minuto, uno por partido", "5 minutos, cuando quieras"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "En el último juego de un partido, ¿cuándo se cambian de lado los jugadores?",
+      "opciones": ["Nunca, se quedan donde están", "Solo si el árbitro lo considera necesario", "Cada vez que hay un let", "Cuando alguien llega a 5 puntos"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "¿De qué colores deben ser las dos caras de la raqueta?",
+      "opciones": ["Una negra y la otra de un color vivo", "Las dos del mismo color", "Blanca y naranja, a juego con las pelotas", "Del color que el jugador prefiera"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "Si un juego pasa de 10 minutos sin terminar (y no van ambos en 9 o más), entra la regla de aceleración. ¿Qué cambia?",
+      "opciones": ["Se termina el juego y gana el que vaya adelante en el marcador", "Si el receptor devuelve 13 veces, gana el punto", "Se cambia la pelota por una más rápida", "Ya no se permiten saques con efecto"],
+      "correcta": 1
     }
   ],
+
   "indumentaria": [
     {
-      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
-      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "pregunta": "¿Por qué el color de tu camiseta tiene que ser bien distinto al de la pelota?",
+      "opciones": ["Porque la ITTF vende camisetas", "Para salir mejor en las fotos", "Para que el rival vea bien la pelota", "Porque los colores claros dan mucho calor"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿De qué colores pueden ser las pelotas oficiales?",
+      "opciones": ["Amarilla o verde", "Blanca o amarilla", "Cualquier color neón", "Blanca o naranja"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "¿Cuál es el uniforme básico de un jugador en competencia?",
+      "opciones": ["Camiseta, short o falda, medias y tenis", "Sudadera completa, gorra y guantes livianos", "Pijama deportiva y pantuflas cómodas", "Lo que quiera, mientras sea cómodo"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "Hace frío en el coliseo. ¿Puedes jugar un partido oficial con la sudadera puesta?",
+      "opciones": ["Sí, siempre", "Solo si el juez árbitro lo autoriza", "Solo en invierno", "Solo si es del mismo color que la pelota"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "¿Qué tipo de zapatos conviene usar para jugar?",
+      "opciones": ["Botas de caucho", "Guayos de fútbol para no resbalarse nunca", "Tenis livianos con suela que agarre", "Chanclas, para moverse libre"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿Cuánto puede medir como máximo el grosor del recubrimiento de la raqueta (goma + esponja + pegante)?",
+      "opciones": ["2 mm", "8 mm", "1 cm", "4 mm"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "¿Qué porcentaje mínimo de la hoja de la raqueta (la parte plana) debe ser madera natural?",
+      "opciones": ["85 %", "50 %", "70 %", "100 %"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "¿Qué debe tener la goma de tu raqueta para que sea legal en torneos?",
+      "opciones": ["Tu nombre grabado atrás", "El sello de aprobación de la ITTF", "La firma de tu entrenador con marcador", "Una garantía de 5 años"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "Las gomas lisas (con los granos hacia adentro) son las favoritas de casi todos. ¿Por qué?",
+      "opciones": ["Porque son más baratas", "Porque no se desgastan nunca", "Porque le dan más efecto a la pelota", "Porque son las únicas legales en torneos oficiales"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "Estás sudando como si estuvieras en un sauna. ¿Cada cuánto puedes pedir la toalla durante un juego?",
+      "opciones": ["Cuando quieras", "Solo al final del juego", "Cada 2 puntos", "Cada 6 puntos"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "Tú y tu rival llegan al torneo con camisetas del mismo color. ¿Qué pasa?",
+      "opciones": ["Uno se cambia; si no hay acuerdo, se sortea", "Juegan así, eso no importa para nada", "Se suspende el partido hasta que alguien consiga otra camiseta", "Pierde el que llegó de último a la mesa"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "En competencias oficiales, ¿qué suelen llevar los jugadores en la espalda de la camiseta?",
+      "opciones": ["Un chiste para distraer al rival", "Un número o su nombre y país", "La tabla de puntajes del torneo", "Nada, está prohibido"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "¿Por qué se recomienda ropa de tela ligera que absorba el sudor?",
+      "opciones": ["Porque es obligatoria para ganar", "Porque hace que la pelota rebote más alto en tu lado", "Porque pesa poco y te deja moverte rápido", "Porque así el árbitro te ve mejor"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "Llegas con una camiseta blanca impecable... y la pelota del torneo es blanca. ¿Está bien?",
+      "opciones": ["Sí, el blanco es elegante", "Sí, siempre y cuando la camiseta sea de marca", "Solo si tiene rayas negras", "No, debe contrastar con la pelota"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "A un jugador se le ocurre forrar su raqueta con papel de lija para darle más efecto. ¿Se vale?",
+      "opciones": ["No, solo gomas aprobadas por la ITTF", "Claro, es creatividad pura", "Sí, pero solo por una cara", "Sí, siempre que la lija sea roja o negra por las reglas"],
       "correcta": 0
     }
   ],
+
   "tecnica": [
     {
-      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
-      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "pregunta": "¿Cuáles son los dos agarres de raqueta más conocidos?",
+      "opciones": ["Martillo y tenedor", "Clásico y lapicero", "Puño cerrado y pinza de cangrejo", "A dos manos y a una mano"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "El agarre \"lapicero\" se llama así porque...",
+      "opciones": ["Lo inventó un profesor de escuela", "La raqueta es delgada como un lápiz", "Se toma la raqueta como un lápiz", "Se escribe tu nombre en el mango"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿Cuál es la posición de espera ideal antes de recibir la pelota?",
+      "opciones": ["Piernas rectas y bien juntas, como soldado", "Parado en un solo pie para ser más ágil", "Recostado en la mesa, bien relajado", "Rodillas flexionadas y peso adelante"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "Si le pegas a la pelota rozándola de abajo hacia arriba y hacia adelante, ¿qué efecto le das?",
+      "opciones": ["Liftado (topspin)", "Cortado (backspin)", "Efecto lateral", "Ninguno, sale plana"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "¿Y si la rozas por debajo con la raqueta abierta, como si estuvieras \"cortando\"?",
+      "opciones": ["Liftado", "Cortado", "Globo", "Remate"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "Te llega una pelota con muchísimo liftado y pones la raqueta derechita. ¿Qué suele pasar?",
+      "opciones": ["La pelota se queda en la red", "La pelota se detiene en el aire", "La pelota sale volando larga", "Nada raro, sale perfecta"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "Para devolver un liftado fuerte sin mandarla a la luna, ¿qué conviene hacer?",
+      "opciones": ["Abrir mucho la raqueta hacia el techo", "Soltar la raqueta y rezar", "Cerrar los ojos", "Cerrar un poco la raqueta"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "Te llega un cortado bajito y corto. ¿Cuál es el golpe más seguro para devolverlo?",
+      "opciones": ["El empuje (push)", "Un remate con toda", "Un globo altísimo", "Un saque"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "¿Qué es un bloqueo?",
+      "opciones": ["Tapar la mesa con el cuerpo para que no pase", "Devolver aprovechando la fuerza del rival", "Pegarle a la red a propósito para despistar", "Esconder la raqueta detrás de la espalda"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "La pelota te queda alta, lenta y botando facilito. ¿Qué golpe está pidiendo a gritos?",
+      "opciones": ["Un empuje suave", "Un bloqueo pasivo y tranquilo", "El remate (smash)", "Dejarla pasar"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿Qué hace el efecto lateral en un saque?",
+      "opciones": ["Que la pelota vaya más lento siempre", "Que la pelota rebote dos veces", "Que la pelota cambie de color", "Que la pelota se curve hacia un lado"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "¿Cómo deben ser los desplazamientos para cubrir toda la mesa?",
+      "opciones": ["Pasitos laterales, sin cruzar los pies", "Saltos gigantes de canguro de un lado a otro", "Correr en círculos alrededor de la mesa", "No moverse y estirar el brazo al máximo"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "¿Qué hace un jugador \"defensivo\" o cortador?",
+      "opciones": ["Nunca ataca porque le da miedo la pelota", "Juega lejos y devuelve todo cortado", "Solo juega dobles, cuidando a su compañero", "Defiende al árbitro en las discusiones"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "Acabas de pegar un golpe buenísimo. ¿Qué es lo primero que debes hacer después?",
+      "opciones": ["Celebrar el golpe", "Voltear a ver si tu entrenador te aplaudió", "Volver a la posición de espera", "Secarte el sudor"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿Qué es un \"flick\" (o \"flip\")?",
+      "opciones": ["Un saque ilegal que se hace de espaldas", "Una forma rara de agarrar la raqueta", "El baile oficial de celebración del punto", "Un ataque corto y rápido sobre la mesa"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "¿Cuál es el golpe de ataque favorito de los jugadores profesionales de hoy?",
+      "opciones": ["El liftado (topspin)", "El globo", "El cortado", "El golpe plano, sin nada de efecto"],
       "correcta": 0
     }
   ],
+
   "arbitraje": [
     {
-      "pregunta": "EJEMPLO - reemplacen esta pregunta por una real de su investigación",
-      "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "pregunta": "En un partido, ¿cómo se llama quien se sienta junto a la mesa y va cantando los puntos?",
+      "opciones": ["El juez árbitro", "El árbitro", "El entrenador", "El público"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "¿Y quién tiene la última palabra sobre cómo se interpretan las reglas en todo el torneo?",
+      "opciones": ["El árbitro de cada mesa", "El jugador con más títulos", "El juez árbitro", "El público con sus aplausos"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "Al cantar el marcador, ¿el puntaje de quién dice primero el árbitro?",
+      "opciones": ["El del jugador que va ganando", "El del jugador de su izquierda", "El del más joven", "El del jugador que va a sacar"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "El árbitro te saca tarjeta amarilla. ¿Qué significa?",
+      "opciones": ["Una advertencia por mal comportamiento", "Que te descalificaron del torneo entero", "Que te toca sacar", "Que puedes pedir agua"],
       "correcta": 0
+    },
+    {
+      "pregunta": "Ya te sacaron amarilla y sigues portándote mal. ¿Qué te muestran ahora?",
+      "opciones": ["Otra amarilla más, pero sin ningún castigo", "Amarilla y roja: un punto para el rival", "Una tarjeta verde", "Te sacan del coliseo sin tarjeta"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "¿Cuál de estas conductas te puede costar una tarjeta?",
+      "opciones": ["Gritar \"¡vamos!\" después de un buen punto", "Secarte con la toalla cada 6 puntos", "Tirar la raqueta con rabia", "Amarrarte los cordones"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿Qué dice el árbitro cuando un punto se tiene que repetir?",
+      "opciones": ["¡Falta!", "¡Otra vez!", "Tiempo", "Let"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "Vas a sacar, pero tu rival claramente no está listo y ni intenta devolver. ¿Qué decide el árbitro?",
+      "opciones": ["Let: se repite", "Punto para ti", "Tarjeta para el rival", "Punto para el rival"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "¿Quién decide si la pelota tocó el borde de la mesa en el lado donde está sentado el árbitro asistente?",
+      "opciones": ["El árbitro principal", "El árbitro asistente", "Los dos jugadores votan", "El juez árbitro por radio"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "¿Dónde se ubica el árbitro durante el partido?",
+      "opciones": ["En una esquina detrás de un jugador", "En la tribuna con el público", "A un lado, alineado con la red", "Debajo de la mesa, bien escondido"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿Puede tu entrenador darte consejos durante el partido?",
+      "opciones": ["Nunca, está prohibido hablar", "Sí, gritando en plena jugada", "Solo con mensajes de texto al celular", "Sí, pero no durante la jugada"],
+      "correcta": 3
+    },
+    {
+      "pregunta": "Un jugador saca escondiendo la pelota con el cuerpo para que el rival no la vea. ¿Qué pasa?",
+      "opciones": ["Punto para el rival", "Se repite sin problema", "Se le aplaude la astucia", "Gana el punto igual"],
+      "correcta": 0
+    },
+    {
+      "pregunta": "Un jugador se demora a propósito entre puntos para cortarle el ritmo al rival. ¿Qué puede hacer el árbitro?",
+      "opciones": ["Nada, el tiempo es libre", "Sancionarlo por demorar el juego", "Darle un punto extra por paciencia", "Parar el partido para siempre"],
+      "correcta": 1
+    },
+    {
+      "pregunta": "Antes del partido, ¿qué revisa el árbitro en tu raqueta?",
+      "opciones": ["Que sea nuevecita, recién sacada de la caja", "Que sea de la marca favorita del árbitro", "Gomas aprobadas y colores correctos", "Que pese exactamente 100 gramos"],
+      "correcta": 2
+    },
+    {
+      "pregunta": "¿Cuánto tiempo tienen los jugadores para calentar en la mesa antes del partido?",
+      "opciones": ["10 minutos", "Media hora", "No hay calentamiento", "Hasta 2 minutos"],
+      "correcta": 3
     }
   ]
 }

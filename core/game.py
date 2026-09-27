@@ -21,11 +21,18 @@ class Game:
         self.corriendo = True
 
         # datos que se comparten entre estados (ej: puntaje total, rivales vencidos)
-        self.datos_globales = {
-            "rivales_vencidos": set(),
-        }
+        self.datos_globales = {}
+        self.reiniciar_partida()
 
         self.estado = None  # se asigna con cambiar_estado() desde main.py
+
+    def reiniciar_partida(self):
+        """Borra el progreso (rivales vencidos, aciertos, fallos) para jugar de nuevo."""
+        self.datos_globales = {
+            "rivales_vencidos": set(),
+            "aciertos": 0,
+            "fallos": 0,
+        }
 
     def cambiar_estado(self, nuevo_estado):
         """nuevo_estado: una instancia de una clase que hereda de State."""
