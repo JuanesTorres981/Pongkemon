@@ -7,9 +7,11 @@ CAMBIENLO AQUI y no repartido por el código.
 """
 
 import os
+import sys
 
 # ---------- RUTAS ----------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Si corre como .exe (PyInstaller), los assets están en la carpeta temporal sys._MEIPASS
+BASE_DIR = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 SPRITES_DIR = os.path.join(ASSETS_DIR, "sprites")
 FONTS_DIR = os.path.join(ASSETS_DIR, "fonts")
