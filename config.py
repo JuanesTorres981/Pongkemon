@@ -52,7 +52,7 @@ VELOCIDAD_JUGADOR = TILE_SIZE  # se mueve casilla por casilla (estilo Pokémon)
 
 # ---------- REGLAS DEL DUELO ----------
 # Un solo juego (game) a 11 puntos, hay que ganar por diferencia de 2.
-PUNTOS_PARA_GANAR = 11
+PUNTOS_PARA_GANAR = 7
 DIFERENCIA_MINIMA = 2
 JUEGOS_POR_DUELO = 1  # "al mejor de 1" -> si luego quieren mejor de 3/5, solo cambien esto
                        # y ajusten match_manager.py (ya viene preparado para eso)

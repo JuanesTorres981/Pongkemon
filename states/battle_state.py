@@ -90,7 +90,7 @@ MENSAJES_FALLO = [
 
 # cuánto se queda el mensaje en pantalla DESPUÉS de que la pelota termina
 PAUSA_ACIERTO = 0.8
-PAUSA_FALLO = 2.2  # más larga para alcanzar a leer la respuesta correcta
+PAUSA_FALLO = 2.5  # más larga para alcanzar a leer la respuesta correcta
 # colores de texto que se leen bien sobre el marco azul oscuro
 COLOR_ACIERTO = (120, 230, 130)
 COLOR_FALLO = (255, 120, 120)
